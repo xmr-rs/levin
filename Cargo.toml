@@ -1,0 +1,32 @@
+[package]
+name = "levin"
+version = "0.1.0"
+authors = ["Jean Pierre Dudey <jeandudey@hotmail.com>"]
+license = "MIT/Apache-2.0"
+description = "Implementation of the levin protocol used in the Monero cryptocurrency."
+keywords = ["futures", "async", "monero", "xmr", "epee"]
+documentation = "https://docs.rs/levin"
+homepage = "https://github.com/xmr-rs/levin"
+repository = "https://github.com/xmr-rs/levin"
+include = ["LICENSE-APACHE", "LICENSE-MIT"]
+
+[dependencies]
+futures = "0.1.18"
+tokio-core = "0.1.12"
+tokio-io = "0.1.5"
+
+crossbeam = "0.3.2"
+parking_lot = "0.4.8"
+
+bytes = "0.4.6"
+
+failure = "0.1.1"
+failure_derive = "0.1.1"
+
+log = "0.4.1"
+
+portable-storage = { git = "https://github.com/xmr-rs/portable-storage", branch = "main", version = "0.1.0" }
+
+[dev-dependencies]
+serde = "1.0.27"
+serde_derive = "1.0.27"
