@@ -12,12 +12,14 @@ mod bucket_sink;
 mod bucket_stream;
 mod handlers;
 mod io;
-mod tcp_server;
 mod tcp_client;
+mod tcp_server;
 
-pub use self::bucket_sink::{BucketSink, bucket_sink};
-pub use self::bucket_stream::{BucketStream, bucket_stream};
-pub use self::handlers::{NotificationHandler, InvokationHandler, RemoteHandler};
-pub use self::io::{IoHandler, IoHandlerRef};
-pub use self::tcp_server::{TcpServer, ConnectionHandler, ConnectionHandlerRef};
-pub use self::tcp_client::{connect, Commands};
+pub use self::{
+    bucket_sink::{bucket_sink, BucketSink},
+    bucket_stream::{bucket_stream, BucketStream},
+    handlers::{InvokationHandler, NotificationHandler, RemoteHandler},
+    io::{IoHandler, IoHandlerRef},
+    tcp_client::{connect, Commands},
+    tcp_server::{ConnectionHandler, ConnectionHandlerRef, TcpServer},
+};

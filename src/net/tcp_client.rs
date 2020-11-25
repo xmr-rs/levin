@@ -6,36 +6,32 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::io;
-use std::net::SocketAddr;
-use std::sync::Arc;
-
-use futures::{Async, Future, Poll, future};
-use futures::stream::Stream;
-use futures::task::{self, Task};
-
-use tokio_core::net::TcpStream;
-use tokio_core::reactor::Handle;
-use tokio_io::{AsyncRead, AsyncWrite};
-
-use crossbeam::sync::MsQueue;
-use parking_lot::RwLock;
-
-use portable_storage::Section;
-
 use bucket::Bucket;
 use command::{Command, Id};
-use net::io::IoHandlerRef;
-use net::handlers::RemoteHandler;
-use net::bucket_stream::bucket_stream;
-use net::bucket_sink::bucket_sink;
+use crossbeam::sync::MsQueue;
+use futures::{
+    future,
+    stream::Stream,
+    task::{self, Task},
+    Async, Future, Poll,
+};
+use net::{
+    bucket_sink::bucket_sink, bucket_stream::bucket_stream, handlers::RemoteHandler,
+    io::IoHandlerRef,
+};
+use parking_lot::RwLock;
+use portable_storage::Section;
+use std::{io, net::SocketAddr, sync::Arc};
+use tokio_core::{net::TcpStream, reactor::Handle};
+use tokio_io::{AsyncRead, AsyncWrite};
 
 /// Connects to a levin server.
-pub fn connect(addr: &SocketAddr,
-               handle: &Handle,
-               io_handler: IoHandlerRef,
-               commands: Commands)
-               -> Box<Future<Item = (), Error = io::Error> + Send + Sync + 'static> {
+pub fn connect(
+    addr: &SocketAddr,
+    handle: &Handle,
+    io_handler: IoHandlerRef,
+    commands: Commands,
+) -> Box<Future<Item = (), Error = io::Error> + Send + Sync + 'static> {
     let addr = addr.clone();
     Box::new(TcpStream::connect(&addr, handle).and_then(move |stream| {
         let io_handler = io_handler.clone();
@@ -62,8 +58,10 @@ pub fn connect(addr: &SocketAddr,
             let section = match bucket.into_section() {
                 Ok(s) => s,
                 Err(e) => {
-                    warn!("received bucket with invalid portable-storage section: {}",
-                          e);
+                    warn!(
+                        "received bucket with invalid portable-storage section: {}",
+                        e
+                    );
                     commands.error_response(id, -1);
                     return future::ok::<(), io::Error>(());
                 }
@@ -75,14 +73,18 @@ pub fn connect(addr: &SocketAddr,
                         let response = handler.call(addr.clone(), section);
                         match response {
                             Ok(Some(r)) => commands.invokation_response(id, r),
-                            Ok(None) => { /* do nothing, the command stream is closed */},
+                            Ok(None) => { /* do nothing, the command stream is closed */ }
                             Err(e) => commands.error_response(id, e),
                         }
                     }
-                    Some(RemoteHandler::Notification(handler)) => handler.call(addr.clone(), section),
+                    Some(RemoteHandler::Notification(handler)) => {
+                        handler.call(addr.clone(), section)
+                    }
                     None => {
-                        warn!("received bucket with ID #{} but a handler isn't defined.",
-                              id);
+                        warn!(
+                            "received bucket with ID #{} but a handler isn't defined.",
+                            id
+                        );
                         commands.error_response(id, -1);
                         return future::ok::<(), io::Error>(());
                     }
@@ -90,17 +92,20 @@ pub fn connect(addr: &SocketAddr,
             } else {
                 if let Some((handler_id, handler)) = commands.current_handler() {
                     if id != handler_id {
-                        warn!("response id #{} doesn't match handler id #{}",
-                              id,
-                              handler_id);
+                        warn!(
+                            "response id #{} doesn't match handler id #{}",
+                            id, handler_id
+                        );
                         commands.error_response(id, -1);
                         return future::ok::<(), io::Error>(());
                     }
 
                     handler.call(section);
                 } else {
-                    warn!("received response with ID #{}, but no handler is defined.",
-                          id);
+                    warn!(
+                        "received response with ID #{}, but no handler is defined.",
+                        id
+                    );
                     commands.error_response(id, -1);
                     return future::ok::<(), io::Error>(());
                 }
@@ -111,7 +116,8 @@ pub fn connect(addr: &SocketAddr,
 
         let bucket_sender = bucket_sink(write_half);
 
-        let sender = commands.forward(bucket_sender)
+        let sender = commands
+            .forward(bucket_sender)
             .map(|(_, sender)| sender.inner().unwrap().shutdown());
 
         receiver.join(sender).map(|_| ())
@@ -123,7 +129,8 @@ pub trait InvokationResponseHandler: Send + Sync + 'static {
 }
 
 impl<F> InvokationResponseHandler for F
-    where F: Send + Sync + 'static + Fn(Section)
+where
+    F: Send + Sync + 'static + Fn(Section),
 {
     fn call(&self, response: Section) {
         self(response)
@@ -153,8 +160,9 @@ impl Commands {
 
     /// Adds an invokation to the queue.
     pub fn invoke<C, F>(&self, request: Section, command: F)
-        where C: Command,
-              F: InvokationResponseHandler + 'static
+    where
+        C: Command,
+        F: InvokationResponseHandler + 'static,
     {
         let bucket = Bucket::invokation(C::ID, request);
 
@@ -167,7 +175,8 @@ impl Commands {
 
     /// Adds a notification to the queue.
     pub fn notify<C>(&self, request: Section)
-        where C: Command
+    where
+        C: Command,
     {
         let bucket = Bucket::notification(C::ID, request);
 

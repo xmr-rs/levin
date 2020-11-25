@@ -6,11 +6,9 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::collections::HashMap;
-use std::sync::Arc;
-
-use command::{Id, Command};
-use net::handlers::{NotificationHandler, InvokationHandler, RemoteHandler};
+use command::{Command, Id};
+use net::handlers::{InvokationHandler, NotificationHandler, RemoteHandler};
+use std::{collections::HashMap, sync::Arc};
 
 /// A reference to an `IoHandler`.
 pub type IoHandlerRef = Arc<IoHandler>;
@@ -25,20 +23,26 @@ pub struct IoHandler {
 impl IoHandler {
     /// Creates an empty `IoHandler`.
     pub fn new() -> IoHandler {
-        IoHandler { handlers: HashMap::new() }
+        IoHandler {
+            handlers: HashMap::new(),
+        }
     }
 
     /// Creates an `IoHandler` with the given capacity.
     pub fn with_capacity(cap: usize) -> IoHandler {
-        IoHandler { handlers: HashMap::with_capacity(cap) }
+        IoHandler {
+            handlers: HashMap::with_capacity(cap),
+        }
     }
 
     /// Add a notification to this handler.
     pub fn add_notification<C, F>(&mut self, handler: F)
-        where C: Command,
-              F: NotificationHandler + 'static
+    where
+        C: Command,
+        F: NotificationHandler + 'static,
     {
-        let result = self.handlers
+        let result = self
+            .handlers
             .insert(C::ID, RemoteHandler::Notification(Arc::new(handler)));
         if result.is_some() {
             warn!("Command #{} was previosly added.", C::ID);
@@ -48,10 +52,12 @@ impl IoHandler {
 
     /// Add a notification to this handler.
     pub fn add_invokation<C, F>(&mut self, handler: F)
-        where C: Command,
-              F: InvokationHandler + 'static
+    where
+        C: Command,
+        F: InvokationHandler + 'static,
     {
-        let result = self.handlers
+        let result = self
+            .handlers
             .insert(C::ID, RemoteHandler::Invokation(Arc::new(handler)));
         if result.is_some() {
             warn!("Command #{} was previosly added.", C::ID);

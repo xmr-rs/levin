@@ -11,21 +11,16 @@ repository = "https://github.com/xmr-rs/levin"
 include = ["LICENSE-APACHE", "LICENSE-MIT"]
 
 [dependencies]
-futures = "0.1.18"
-tokio-core = "0.1.12"
-tokio-io = "0.1.5"
-
-crossbeam = "0.3.2"
-parking_lot = "0.4.8"
-
 bytes = "0.4.6"
-
+crossbeam = "0.3.2"
 failure = "0.1.1"
 failure_derive = "0.1.1"
-
+futures = "0.1.18"
 log = "0.4.1"
-
+parking_lot = "0.4.8"
 portable-storage = { git = "https://github.com/xmr-rs/portable-storage", branch = "main", version = "0.1.0" }
+tokio-core = "0.1.12"
+tokio-io = "0.1.5"
 
 [dev-dependencies]
 serde = "1.0.27"

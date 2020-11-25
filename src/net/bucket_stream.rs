@@ -6,22 +6,20 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::io;
-use std::mem::replace;
-
-use futures::{Future, Poll, Async};
-use futures::stream::Stream;
-
-use tokio_io::AsyncRead;
-
 use bucket::{Bucket, Receive};
 use error::Result;
+use futures::{stream::Stream, Async, Future, Poll};
+use std::{io, mem::replace};
+use tokio_io::AsyncRead;
 
 /// Creates the bucket stream.
 pub fn bucket_stream<A>(a: A) -> BucketStream<A>
-    where A: AsyncRead
+where
+    A: AsyncRead,
 {
-    BucketStream { future: Bucket::receive_future(a) }
+    BucketStream {
+        future: Bucket::receive_future(a),
+    }
 }
 
 /// A stream of buckets.
@@ -31,7 +29,8 @@ pub struct BucketStream<A: AsyncRead> {
 }
 
 impl<A> Stream for BucketStream<A>
-    where A: AsyncRead
+where
+    A: AsyncRead,
 {
     type Item = Result<Bucket>;
     type Error = io::Error;

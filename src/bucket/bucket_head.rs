@@ -7,7 +7,6 @@
 // except according to those terms.
 
 use bytes::{Buf, BufMut, BytesMut, LittleEndian};
-
 use error::{BucketHeadError, Result};
 
 /// BucketHead signature.
@@ -82,8 +81,9 @@ impl BucketHead {
         }
 
         if bucket_head.protocol_version != LEVIN_PROTOCOL_VER_1 {
-            return Err(BucketHeadError::InvalidProtocolVersion(bucket_head.protocol_version)
-                           .into());
+            return Err(
+                BucketHeadError::InvalidProtocolVersion(bucket_head.protocol_version).into(),
+            );
         }
 
         if bucket_head.cb > LEVIN_DEFAULT_MAX_PACKET_SIZE {

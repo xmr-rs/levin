@@ -6,24 +6,20 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::io;
-use std::mem::replace;
-
-use futures::{Future, Poll, Async, AsyncSink, StartSend};
-use futures::sink::Sink;
-
-use tokio_io::io::{WriteAll, write_all};
-use tokio_io::AsyncWrite;
-
-use crossbeam::sync::MsQueue;
-
-use bytes::Bytes;
-
 use bucket::Bucket;
+use bytes::Bytes;
+use crossbeam::sync::MsQueue;
+use futures::{sink::Sink, Async, AsyncSink, Future, Poll, StartSend};
+use std::{io, mem::replace};
+use tokio_io::{
+    io::{write_all, WriteAll},
+    AsyncWrite,
+};
 
 /// Creates the bucket sink.
 pub fn bucket_sink<A>(a: A) -> BucketSink<A>
-    where A: AsyncWrite
+where
+    A: AsyncWrite,
 {
     BucketSink {
         a: Some(a),
@@ -41,11 +37,12 @@ pub struct BucketSink<A: AsyncWrite> {
 }
 
 impl<A> BucketSink<A>
-    where A: AsyncWrite
+where
+    A: AsyncWrite,
 {
     /// Consumes the sink and returns the inner `AsyncWrite`
     /// writer.
-    /// 
+    ///
     /// It returns `Some(writer)` if all items have been flushed
     /// otherwise returns `None`.
     pub fn inner(self) -> Option<A> {
@@ -54,7 +51,8 @@ impl<A> BucketSink<A>
 }
 
 impl<A> Sink for BucketSink<A>
-    where A: AsyncWrite
+where
+    A: AsyncWrite,
 {
     type SinkItem = Bucket;
     type SinkError = io::Error;

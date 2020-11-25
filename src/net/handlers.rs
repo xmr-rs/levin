@@ -6,10 +6,8 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::sync::Arc;
-use std::net::SocketAddr;
-
 use portable_storage::Section;
+use std::{net::SocketAddr, sync::Arc};
 
 /// A trait that handles notifications.
 pub trait NotificationHandler: Send + Sync + 'static {
@@ -18,7 +16,8 @@ pub trait NotificationHandler: Send + Sync + 'static {
 }
 
 impl<F> NotificationHandler for F
-    where F: Send + Sync + 'static + Fn(SocketAddr, Section)
+where
+    F: Send + Sync + 'static + Fn(SocketAddr, Section),
 {
     fn call(&self, addr: SocketAddr, request: Section) {
         self(addr, request)
@@ -32,7 +31,8 @@ pub trait InvokationHandler: Send + Sync + 'static {
 }
 
 impl<F> InvokationHandler for F
-    where F: Send + Sync + 'static + Fn(SocketAddr, Section) -> Result<Option<Section>, i32>
+where
+    F: Send + Sync + 'static + Fn(SocketAddr, Section) -> Result<Option<Section>, i32>,
 {
     fn call(&self, addr: SocketAddr, request: Section) -> Result<Option<Section>, i32> {
         self(addr, request)

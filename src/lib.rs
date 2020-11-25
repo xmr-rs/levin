@@ -6,7 +6,19 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-#![deny(anonymous_parameters, missing_debug_implementations, missing_docs, trivial_casts, trivial_numeric_casts, unreachable_pub, unsafe_code, unstable_features, unused_extern_crates, unused_import_braces, unused_qualifications)]
+#![deny(
+    anonymous_parameters,
+    missing_debug_implementations,
+    missing_docs,
+    trivial_casts,
+    trivial_numeric_casts,
+    unreachable_pub,
+    unsafe_code,
+    unstable_features,
+    unused_extern_crates,
+    unused_import_braces,
+    unused_qualifications
+)]
 
 //! # xmr-levin
 //!
@@ -54,5 +66,5 @@ pub mod net;
 mod command;
 mod error;
 
-pub use command::{COMMAND_BASE_ID, Command, Id};
+pub use command::{Command, Id, COMMAND_BASE_ID};
 pub use error::{BucketHeadError, Error, Result};

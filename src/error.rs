@@ -16,8 +16,7 @@ pub type Result<T> = result::Result<T, Error>;
 pub enum Error {
     /// An error when reading `BucketHead`.
     #[fail(display = "couldn't parse bucket head: {}", _0)]
-    BucketHead(#[cause]
-               BucketHeadError),
+    BucketHead(#[cause] BucketHeadError),
 
     /// The command is invalid.
     #[fail(display = "the bucket command id ({}) is invalid", _0)]

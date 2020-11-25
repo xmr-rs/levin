@@ -6,21 +6,20 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::io;
-
-use futures::{Future, Poll};
-use tokio_io::AsyncRead;
-use tokio_io::io::{ReadExact, read_exact};
-
+use bucket::bucket_head::{
+    BucketHead, BUCKET_HEAD_LENGTH, LEVIN_OK, LEVIN_PACKET_REQUEST, LEVIN_PACKET_RESPONSE,
+    LEVIN_PROTOCOL_VER_1, LEVIN_SIGNATURE,
+};
 use bytes::{Bytes, BytesMut, IntoBuf};
-
-use portable_storage::{self, Section};
-
-use bucket::bucket_head::{BucketHead, LEVIN_SIGNATURE, LEVIN_PROTOCOL_VER_1, LEVIN_OK,
-                          LEVIN_PACKET_REQUEST, LEVIN_PACKET_RESPONSE, BUCKET_HEAD_LENGTH};
-
 use command::Id;
 use error::Result;
+use futures::{Future, Poll};
+use portable_storage::{self, Section};
+use std::io;
+use tokio_io::{
+    io::{read_exact, ReadExact},
+    AsyncRead,
+};
 
 /// A levin bucket, this is the packet of information
 /// that carries commands in the levin protocol.
@@ -117,10 +116,15 @@ impl Bucket {
 
     /// Creates a future that will read a bucket from the provided stream.
     pub fn receive_future<A>(a: A) -> Receive<A>
-        where A: AsyncRead
+    where
+        A: AsyncRead,
     {
         let buf = vec![0u8; BUCKET_HEAD_LENGTH];
-        Receive { state: ReceiveState::ReadBucket { reader: read_exact(a, buf) } }
+        Receive {
+            state: ReceiveState::ReadBucket {
+                reader: read_exact(a, buf),
+            },
+        }
     }
 
     /// Convert the body of this bucket into a portable storage section.
@@ -153,7 +157,9 @@ pub struct Receive<A: AsyncRead> {
 
 #[derive(Debug)]
 enum ReceiveState<A> {
-    ReadBucket { reader: ReadExact<A, Vec<u8>> },
+    ReadBucket {
+        reader: ReadExact<A, Vec<u8>>,
+    },
     ReadStorage {
         bucket_head: BucketHead,
         reader: ReadExact<A, Vec<u8>>,
@@ -161,7 +167,8 @@ enum ReceiveState<A> {
 }
 
 impl<A> Future for Receive<A>
-    where A: AsyncRead
+where
+    A: AsyncRead,
 {
     type Item = (A, Result<Bucket>);
     type Error = io::Error;
