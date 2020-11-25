@@ -1,7 +1,10 @@
 [package]
 name = "levin"
 version = "0.1.0"
-authors = ["Jean Pierre Dudey <jeandudey@hotmail.com>"]
+authors = [
+    "Jean Pierre Dudey <jeandudey@hotmail.com>",
+    "Artem Vorotnikov <artem@vorotnikov.me>",
+]
 edition = "2018"
 license = "MIT/Apache-2.0"
 description = "Implementation of the levin protocol used in the Monero cryptocurrency."

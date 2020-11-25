@@ -20,25 +20,7 @@
     unused_qualifications
 )]
 
-//! # xmr-levin
-//!
 //! Rust implementation of the levin protocol used in the Monero cryptocurrency.
-//!
-//! # Usage:
-//!
-//! Add it to the dependencies in your `Cargo.toml`:
-//!
-//! ```toml
-//! [dependencies]
-//! levin = { git = "https://www.github.com/xmr-rs/levin", version = "0.1.0" }
-//! ```
-//!
-//! And import it in your crate like this:
-//!
-//! ```rust
-//! // or if you're using it inside a crate of the xmr project:
-//! extern crate levin;
-//! ```
 //!
 
 pub mod bucket;
