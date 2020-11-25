@@ -34,8 +34,8 @@ pub fn connect(
     handle: &Handle,
     io_handler: IoHandlerRef,
     commands: Commands,
-) -> Box<Future<Item = (), Error = io::Error> + Send + Sync + 'static> {
-    let addr = addr.clone();
+) -> Box<dyn Future<Item = (), Error = io::Error> + Send + Sync + 'static> {
+    let addr = *addr;
     Box::new(TcpStream::connect(&addr, handle).and_then(move |stream| {
         let io_handler = io_handler.clone();
         let commands = commands.clone();
@@ -58,7 +58,7 @@ pub fn connect(
             };
 
             let id = bucket.head.command;
-            let section = match bucket.into_section() {
+            let section = match bucket.to_section() {
                 Ok(s) => s,
                 Err(e) => {
                     warn!(
@@ -73,16 +73,14 @@ pub fn connect(
             if bucket.head.is_request() {
                 match io_handler.get(id) {
                     Some(RemoteHandler::Invokation(handler)) => {
-                        let response = handler.call(addr.clone(), section);
+                        let response = handler.call(addr, section);
                         match response {
                             Ok(Some(r)) => commands.invokation_response(id, r),
                             Ok(None) => { /* do nothing, the command stream is closed */ }
                             Err(e) => commands.error_response(id, e),
                         }
                     }
-                    Some(RemoteHandler::Notification(handler)) => {
-                        handler.call(addr.clone(), section)
-                    }
+                    Some(RemoteHandler::Notification(handler)) => handler.call(addr, section),
                     None => {
                         warn!(
                             "received bucket with ID #{} but a handler isn't defined.",
@@ -92,26 +90,24 @@ pub fn connect(
                         return future::ok::<(), io::Error>(());
                     }
                 }
-            } else {
-                if let Some((handler_id, handler)) = commands.current_handler() {
-                    if id != handler_id {
-                        warn!(
-                            "response id #{} doesn't match handler id #{}",
-                            id, handler_id
-                        );
-                        commands.error_response(id, -1);
-                        return future::ok::<(), io::Error>(());
-                    }
-
-                    handler.call(section);
-                } else {
+            } else if let Some((handler_id, handler)) = commands.current_handler() {
+                if id != handler_id {
                     warn!(
-                        "received response with ID #{}, but no handler is defined.",
-                        id
+                        "response id #{} doesn't match handler id #{}",
+                        id, handler_id
                     );
                     commands.error_response(id, -1);
                     return future::ok::<(), io::Error>(());
                 }
+
+                handler.call(section);
+            } else {
+                warn!(
+                    "received response with ID #{}, but no handler is defined.",
+                    id
+                );
+                commands.error_response(id, -1);
+                return future::ok::<(), io::Error>(());
             }
 
             future::ok::<(), io::Error>(())
@@ -145,9 +141,15 @@ where
 #[derive(Clone)]
 pub struct Commands {
     queue: Arc<MsQueue<Bucket>>,
-    handler_queue: Arc<MsQueue<(Id, Arc<InvokationResponseHandler>)>>,
+    handler_queue: Arc<MsQueue<(Id, Arc<dyn InvokationResponseHandler>)>>,
     task: Arc<RwLock<Option<Task>>>,
     shutdown: Arc<RwLock<bool>>,
+}
+
+impl Default for Commands {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Commands {
@@ -209,7 +211,7 @@ impl Commands {
         }
     }
 
-    pub(crate) fn current_handler(&self) -> Option<(Id, Arc<InvokationResponseHandler>)> {
+    pub(crate) fn current_handler(&self) -> Option<(Id, Arc<dyn InvokationResponseHandler>)> {
         self.handler_queue.try_pop()
     }
 
@@ -232,13 +234,11 @@ impl Stream for Commands {
                 *self.task.write() = None;
                 Ok(Async::Ready(Some(bucket)))
             }
+        } else if shutdown {
+            Ok(Async::Ready(None))
         } else {
-            if shutdown {
-                Ok(Async::Ready(None))
-            } else {
-                *self.task.write() = Some(task::current());
-                Ok(Async::NotReady)
-            }
+            *self.task.write() = Some(task::current());
+            Ok(Async::NotReady)
         }
     }
 }

@@ -44,8 +44,8 @@ where
 #[derive(Clone)]
 pub enum RemoteHandler {
     /// A notification.
-    Notification(Arc<NotificationHandler>),
+    Notification(Arc<dyn NotificationHandler>),
 
     /// An invokation.
-    Invokation(Arc<InvokationHandler>),
+    Invokation(Arc<dyn InvokationHandler>),
 }

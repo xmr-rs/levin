@@ -131,7 +131,7 @@ impl Bucket {
     }
 
     /// Convert the body of this bucket into a portable storage section.
-    pub fn into_section(&self) -> ::std::result::Result<Section, portable_storage::Error> {
+    pub fn to_section(&self) -> ::std::result::Result<Section, portable_storage::Error> {
         use std::io::Cursor;
 
         let mut buf = Cursor::new(self.body.as_ref());
@@ -140,7 +140,7 @@ impl Bucket {
 
     /// Consumes this bucket and returns a `Bytes` container
     /// with the data of it.
-    pub fn to_bytes(self) -> Bytes {
+    pub fn into_bytes(self) -> Bytes {
         let mut blob = BytesMut::with_capacity(self.body.len() + BUCKET_HEAD_LENGTH);
         BucketHead::write(&mut blob, &self.head);
 

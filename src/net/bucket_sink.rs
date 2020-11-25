@@ -60,7 +60,7 @@ where
     fn start_send(&mut self, item: Self::SinkItem) -> StartSend<Self::SinkItem, Self::SinkError> {
         if self.current_write.is_none() && self.queue.is_empty() {
             let a = replace(&mut self.a, None).expect("invalid state");
-            let mut future = write_all(a, item.to_bytes());
+            let mut future = write_all(a, item.into_bytes());
 
             // start writing the data inmediately and
             // see if it's done, otherwise poll_completed should
@@ -83,7 +83,7 @@ where
             self.queue.push(item);
 
             let a = replace(&mut self.a, None).expect("invalid state");
-            let mut future = write_all(a, bucket.to_bytes());
+            let mut future = write_all(a, bucket.into_bytes());
 
             // TODO: DRY, same as above
             match future.poll()? {
@@ -114,7 +114,7 @@ where
         // check if there are remaining items to write
         if let Some(bucket) = self.queue.try_pop() {
             let a = replace(&mut self.a, None).expect("invalid state");
-            let mut future = write_all(a, bucket.to_bytes());
+            let mut future = write_all(a, bucket.into_bytes());
 
             match future.poll()? {
                 Async::Ready((a, _)) => {
@@ -123,15 +123,15 @@ where
                     // now that the item is writing try to write other
                     // items calling this function recursively once this is
                     // done.
-                    return self.poll_complete();
+                    self.poll_complete()
                 }
                 Async::NotReady => {
                     self.current_write = Some(future);
-                    return Ok(Async::NotReady);
+                    Ok(Async::NotReady)
                 }
             }
         } else {
-            return Ok(Async::Ready(()));
+            Ok(Async::Ready(()))
         }
     }
 }

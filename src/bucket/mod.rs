@@ -11,6 +11,7 @@
 //! Buckets are the packet of information that the levin protocol use
 //! to send and receive commands.
 
+#[allow(clippy::module_inception)]
 mod bucket;
 mod bucket_head;
 

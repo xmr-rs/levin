@@ -40,7 +40,7 @@ impl TcpServer {
     }
 
     /// Creates a future that will run the server.
-    pub fn run(self) -> Box<Future<Item = (), Error = io::Error> + Send + Sync + 'static> {
+    pub fn run(self) -> Box<dyn Future<Item = (), Error = io::Error> + Send + Sync + 'static> {
         let io_handler = self.io_handler;
         let connection_handler = self.connection_handler;
         Box::new(self.listener.incoming().for_each(move |(stream, addr)| {
@@ -48,7 +48,7 @@ impl TcpServer {
             let connection_handler = connection_handler.clone();
 
             let commands = Commands::new();
-            connection_handler.on_connect(addr.clone(), commands.clone());
+            connection_handler.on_connect(addr, commands.clone());
 
             let (read_half, write_half) = stream.split();
 
@@ -68,7 +68,7 @@ impl TcpServer {
                 };
 
                 let id = bucket.head.command;
-                let section = match bucket.into_section() {
+                let section = match bucket.to_section() {
                     Ok(s) => s,
                     Err(e) => {
                         warn!(
@@ -83,16 +83,14 @@ impl TcpServer {
                 if bucket.head.is_request() {
                     match io_handler.get(id) {
                         Some(RemoteHandler::Invokation(handler)) => {
-                            let response = handler.call(addr.clone(), section);
+                            let response = handler.call(addr, section);
                             match response {
                                 Ok(Some(r)) => commands.invokation_response(id, r),
                                 Ok(None) => { /* do nothing, the command stream is closed */ }
                                 Err(e) => commands.error_response(id, e),
                             }
                         }
-                        Some(RemoteHandler::Notification(handler)) => {
-                            handler.call(addr.clone(), section)
-                        }
+                        Some(RemoteHandler::Notification(handler)) => handler.call(addr, section),
                         None => {
                             warn!(
                                 "received bucket with ID #{} but a handler isn't defined.",
@@ -102,26 +100,24 @@ impl TcpServer {
                             return future::ok::<(), io::Error>(());
                         }
                     }
-                } else {
-                    if let Some((handler_id, handler)) = commands.current_handler() {
-                        if id != handler_id {
-                            warn!(
-                                "response id #{} doesn't match handler id #{}",
-                                id, handler_id
-                            );
-                            commands.error_response(id, -1);
-                            return future::ok::<(), io::Error>(());
-                        }
-
-                        handler.call(section);
-                    } else {
+                } else if let Some((handler_id, handler)) = commands.current_handler() {
+                    if id != handler_id {
                         warn!(
-                            "received response with ID #{}, but no handler is defined.",
-                            id
+                            "response id #{} doesn't match handler id #{}",
+                            id, handler_id
                         );
                         commands.error_response(id, -1);
                         return future::ok::<(), io::Error>(());
                     }
+
+                    handler.call(section);
+                } else {
+                    warn!(
+                        "received response with ID #{}, but no handler is defined.",
+                        id
+                    );
+                    commands.error_response(id, -1);
+                    return future::ok::<(), io::Error>(());
                 }
 
                 future::ok::<(), io::Error>(())
@@ -145,4 +141,4 @@ pub trait ConnectionHandler: Send + Sync + 'static {
 }
 
 /// A reference to a `ConnectionHandler`.
-pub type ConnectionHandlerRef = Arc<ConnectionHandler>;
+pub type ConnectionHandlerRef = Arc<dyn ConnectionHandler>;

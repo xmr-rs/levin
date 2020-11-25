@@ -18,7 +18,7 @@ pub type IoHandlerRef = Arc<IoHandler>;
 
 /// Handles external IO.
 #[allow(missing_debug_implementations)]
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct IoHandler {
     handlers: HashMap<Id, RemoteHandler>,
 }
@@ -26,9 +26,7 @@ pub struct IoHandler {
 impl IoHandler {
     /// Creates an empty `IoHandler`.
     pub fn new() -> IoHandler {
-        IoHandler {
-            handlers: HashMap::new(),
-        }
+        Default::default()
     }
 
     /// Creates an `IoHandler` with the given capacity.
@@ -74,7 +72,7 @@ impl IoHandler {
     }
 
     /// Converts this `IoHandler` to an `IoHandlerRef`
-    pub fn to_ref(self) -> IoHandlerRef {
+    pub fn into_ref(self) -> IoHandlerRef {
         Arc::new(self)
     }
 }

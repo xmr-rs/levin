@@ -7,7 +7,7 @@
 // except according to those terms.
 
 use crate::error::{BucketHeadError, Result};
-use bytes::{Buf, BufMut, BytesMut, LittleEndian};
+use bytes::{Buf, BufMut, BytesMut};
 
 /// BucketHead signature.
 pub const LEVIN_SIGNATURE: u64 = 0x0101010101012101;
@@ -67,13 +67,13 @@ impl BucketHead {
         assert!(buf.remaining() >= BUCKET_HEAD_LENGTH);
 
         let bucket_head = BucketHead {
-            signature: buf.get_u64::<LittleEndian>(),
-            cb: buf.get_u64::<LittleEndian>(),
+            signature: buf.get_u64_le(),
+            cb: buf.get_u64_le(),
             have_to_return_data: buf.get_u8() != 0,
-            command: buf.get_u32::<LittleEndian>(),
-            return_code: buf.get_i32::<LittleEndian>(),
-            flags: buf.get_u32::<LittleEndian>(),
-            protocol_version: buf.get_u32::<LittleEndian>(),
+            command: buf.get_u32_le(),
+            return_code: buf.get_i32_le(),
+            flags: buf.get_u32_le(),
+            protocol_version: buf.get_u32_le(),
         };
 
         if bucket_head.signature != LEVIN_SIGNATURE {
@@ -107,13 +107,13 @@ impl BucketHead {
             0u8
         };
 
-        buf.put_u64::<LittleEndian>(bucket_head.signature);
-        buf.put_u64::<LittleEndian>(bucket_head.cb);
+        buf.put_u64_le(bucket_head.signature);
+        buf.put_u64_le(bucket_head.cb);
         buf.put_u8(have_to_return_data);
-        buf.put_u32::<LittleEndian>(bucket_head.command);
-        buf.put_i32::<LittleEndian>(bucket_head.return_code);
-        buf.put_u32::<LittleEndian>(bucket_head.flags);
-        buf.put_u32::<LittleEndian>(bucket_head.protocol_version);
+        buf.put_u32_le(bucket_head.command);
+        buf.put_i32_le(bucket_head.return_code);
+        buf.put_u32_le(bucket_head.flags);
+        buf.put_u32_le(bucket_head.protocol_version);
     }
 
     /// Checks if this bucket is a request, returns `true` if it is.

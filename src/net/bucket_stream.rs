@@ -11,7 +11,7 @@ use crate::{
     error::Result,
 };
 use futures::{stream::Stream, try_ready, Async, Future, Poll};
-use std::{io, mem::replace};
+use std::io;
 use tokio_io::AsyncRead;
 
 /// Creates the bucket stream.
@@ -40,7 +40,7 @@ where
     fn poll(&mut self) -> Poll<Option<Self::Item>, io::Error> {
         let (stream, result) = try_ready!(self.future.poll());
 
-        replace(&mut self.future, Bucket::receive_future(stream));
+        self.future = Bucket::receive_future(stream);
 
         Ok(Async::Ready(Some(result)))
     }
