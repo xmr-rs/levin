@@ -14,7 +14,7 @@ use crate::{
         io::IoHandlerRef,
     },
 };
-use crossbeam::sync::MsQueue;
+use crossbeam::queue::MsQueue;
 use futures::{
     future,
     stream::Stream,

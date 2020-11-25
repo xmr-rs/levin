@@ -8,7 +8,7 @@
 
 use crate::bucket::Bucket;
 use bytes::Bytes;
-use crossbeam::sync::MsQueue;
+use crossbeam::queue::MsQueue;
 use futures::{sink::Sink, try_ready, Async, AsyncSink, Future, Poll, StartSend};
 use std::{io, mem::replace};
 use tokio_io::{
