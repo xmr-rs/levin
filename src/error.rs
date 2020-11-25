@@ -6,6 +6,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use failure_derive::Fail;
 use std::result;
 
 /// A result with a levin error.

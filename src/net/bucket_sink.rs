@@ -6,10 +6,10 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use bucket::Bucket;
+use crate::bucket::Bucket;
 use bytes::Bytes;
 use crossbeam::sync::MsQueue;
-use futures::{sink::Sink, Async, AsyncSink, Future, Poll, StartSend};
+use futures::{sink::Sink, try_ready, Async, AsyncSink, Future, Poll, StartSend};
 use std::{io, mem::replace};
 use tokio_io::{
     io::{write_all, WriteAll},

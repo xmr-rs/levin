@@ -6,8 +6,8 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use crate::error::{BucketHeadError, Result};
 use bytes::{Buf, BufMut, BytesMut, LittleEndian};
-use error::{BucketHeadError, Result};
 
 /// BucketHead signature.
 pub const LEVIN_SIGNATURE: u64 = 0x0101010101012101;

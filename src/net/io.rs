@@ -6,8 +6,11 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use command::{Command, Id};
-use net::handlers::{InvokationHandler, NotificationHandler, RemoteHandler};
+use crate::{
+    command::{Command, Id},
+    net::handlers::{InvokationHandler, NotificationHandler, RemoteHandler},
+};
+use log::*;
 use std::{collections::HashMap, sync::Arc};
 
 /// A reference to an `IoHandler`.

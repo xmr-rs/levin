@@ -6,11 +6,12 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use futures::{future, stream::Stream, Future};
-use net::{
+use crate::net::{
     bucket_sink::bucket_sink, bucket_stream::bucket_stream, handlers::RemoteHandler,
     io::IoHandlerRef, tcp_client::Commands,
 };
+use futures::{future, stream::Stream, Future};
+use log::*;
 use std::{io, net::SocketAddr, sync::Arc};
 use tokio_core::{net::TcpListener, reactor::Handle};
 use tokio_io::{AsyncRead, AsyncWrite};

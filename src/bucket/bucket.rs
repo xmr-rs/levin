@@ -6,14 +6,17 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use bucket::bucket_head::{
-    BucketHead, BUCKET_HEAD_LENGTH, LEVIN_OK, LEVIN_PACKET_REQUEST, LEVIN_PACKET_RESPONSE,
-    LEVIN_PROTOCOL_VER_1, LEVIN_SIGNATURE,
+use crate::{
+    bucket::bucket_head::{
+        BucketHead, BUCKET_HEAD_LENGTH, LEVIN_OK, LEVIN_PACKET_REQUEST, LEVIN_PACKET_RESPONSE,
+        LEVIN_PROTOCOL_VER_1, LEVIN_SIGNATURE,
+    },
+    command::Id,
+    error::Result,
 };
 use bytes::{Bytes, BytesMut, IntoBuf};
-use command::Id;
-use error::Result;
-use futures::{Future, Poll};
+use futures::{try_ready, Future, Poll};
+use log::*;
 use portable_storage::{self, Section};
 use std::io;
 use tokio_io::{

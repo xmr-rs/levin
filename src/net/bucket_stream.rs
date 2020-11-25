@@ -6,9 +6,11 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use bucket::{Bucket, Receive};
-use error::Result;
-use futures::{stream::Stream, Async, Future, Poll};
+use crate::{
+    bucket::{Bucket, Receive},
+    error::Result,
+};
+use futures::{stream::Stream, try_ready, Async, Future, Poll};
 use std::{io, mem::replace};
 use tokio_io::AsyncRead;
 

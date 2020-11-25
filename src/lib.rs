@@ -41,25 +41,6 @@
 //! ```
 //!
 
-#[macro_use]
-extern crate futures;
-extern crate tokio_core;
-extern crate tokio_io;
-
-extern crate crossbeam;
-extern crate parking_lot;
-
-extern crate bytes;
-
-#[macro_use]
-extern crate failure_derive;
-extern crate failure;
-
-#[macro_use]
-extern crate log;
-
-extern crate portable_storage;
-
 pub mod bucket;
 pub mod net;
 

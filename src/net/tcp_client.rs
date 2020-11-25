@@ -6,8 +6,14 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use bucket::Bucket;
-use command::{Command, Id};
+use crate::{
+    bucket::Bucket,
+    command::{Command, Id},
+    net::{
+        bucket_sink::bucket_sink, bucket_stream::bucket_stream, handlers::RemoteHandler,
+        io::IoHandlerRef,
+    },
+};
 use crossbeam::sync::MsQueue;
 use futures::{
     future,
@@ -15,10 +21,7 @@ use futures::{
     task::{self, Task},
     Async, Future, Poll,
 };
-use net::{
-    bucket_sink::bucket_sink, bucket_stream::bucket_stream, handlers::RemoteHandler,
-    io::IoHandlerRef,
-};
+use log::*;
 use parking_lot::RwLock;
 use portable_storage::Section;
 use std::{io, net::SocketAddr, sync::Arc};
