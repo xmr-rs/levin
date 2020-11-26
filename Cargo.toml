@@ -3,13 +3,13 @@ name = "levin"
 version = "0.1.0"
 authors = ["Jean Pierre Dudey <jeandudey@hotmail.com>"]
 edition = "2018"
-license = "MIT/Apache-2.0"
+license = "Apache-2.0"
 description = "Implementation of the levin protocol used in the Monero cryptocurrency."
 keywords = ["futures", "async", "monero", "xmr", "epee"]
 documentation = "https://docs.rs/levin"
 homepage = "https://github.com/xmr-rs/levin"
 repository = "https://github.com/xmr-rs/levin"
-include = ["LICENSE-APACHE", "LICENSE-MIT"]
+include = ["LICENSE"]
 
 [dependencies]
 bytes = "0.4.6"
