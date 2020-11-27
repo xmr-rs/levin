@@ -17,12 +17,11 @@ include = ["LICENSE-APACHE", "LICENSE-MIT"]
 [dependencies]
 bytes = "0.4.6"
 crossbeam = "0.6"
-failure = "0.1.1"
-failure_derive = "0.1.1"
 futures = "0.1.18"
 log = "0.4.1"
 parking_lot = "0.4.8"
 portable-storage = { git = "https://github.com/xmr-rs/portable-storage", branch = "main", version = "0.1.0" }
+thiserror = "1"
 tokio-core = "0.1.12"
 tokio-io = "0.1.5"
 
