@@ -15,7 +15,7 @@ repository = "https://github.com/xmr-rs/levin"
 include = ["LICENSE-APACHE", "LICENSE-MIT"]
 
 [dependencies]
-bytes = "0.4.6"
+bytes = "0.6"
 crossbeam = "0.6"
 futures = "0.1.18"
 log = "0.4.1"

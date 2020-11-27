@@ -14,7 +14,7 @@ use crate::{
     command::Id,
     error::Result,
 };
-use bytes::{Bytes, BytesMut, IntoBuf};
+use bytes::{Bytes, BytesMut};
 use futures::{try_ready, Future, Poll};
 use log::*;
 use portable_storage::{self, Section};
@@ -183,8 +183,7 @@ where
                     trace!("receive poll - reading bucket");
                     let (stream, buf) = try_ready!(reader.poll());
 
-                    let mut buf = buf.into_buf();
-                    let bucket_head = match BucketHead::read(&mut buf) {
+                    let bucket_head = match BucketHead::read(&mut buf.as_slice()) {
                         Ok(b) => b,
                         Err(e) => {
                             return Ok((stream, Err(e)).into());
@@ -209,7 +208,7 @@ where
 
                     let bucket = Bucket {
                         head: bucket_head.clone(),
-                        body: buf.into(),
+                        body: buf.as_slice().into(),
                     };
 
                     return Ok((stream, Ok(bucket)).into());
